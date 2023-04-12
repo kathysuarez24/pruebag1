@@ -89,25 +89,41 @@ namespace pruebag1.Controllers
                 string reference = fila[2];
                 string taxDate = fila[3];
                 string dueDate = fila[4];
-                string lineId = fila[5];
-                string accountCode = fila[6];
-                string debit = fila[7];
-                string credit = fila[8];
-                string lineMemo = fila[9];
+                string lineId1 = fila[5];
+                string accountCode1 = fila[6];
+                string debit1 = fila[7];
+                string credit1 = fila[8];
+                string lineMemo1 = fila[9];
                 string reference1 = fila[10];
+                string lineId2 = fila[11];
+                string accountCode2 = fila[12];
+                string debit2 = fila[13];
+                string credit2 = fila[14];
+                string lineMemo2 = fila[15];
+                string reference2 = fila[16];
 
                 List<JournalEntryLines> list = new List<JournalEntryLines>();
 
-                JournalEntryLines journal = new JournalEntryLines
+                JournalEntryLines journal1 = new JournalEntryLines
                 {
-                    LineId = Convert.ToInt32(lineId),
-                    AccountCode = accountCode,
-                    Debit = Convert.ToDouble(debit),
-                    Credit = Convert.ToDouble(credit),
-                    LineMemo = lineMemo,
+                    LineId = Convert.ToInt32(lineId1),
+                    AccountCode = accountCode1,
+                    Debit = Convert.ToDouble(debit1),
+                    Credit = Convert.ToDouble(credit1),
+                    LineMemo = lineMemo1,
                     Reference1 = reference1,
                 };
-                list.Add(journal);
+                JournalEntryLines journal2 = new JournalEntryLines
+                {
+                    LineId = Convert.ToInt32(lineId2),
+                    AccountCode = accountCode2,
+                    Debit = Convert.ToDouble(debit2),
+                    Credit = Convert.ToDouble(credit2),
+                    LineMemo = lineMemo2,
+                    Reference1 = reference2,
+                };
+                list.Add(journal1);
+                list.Add(journal2);
 
                 Seat reg = new Seat
                 {

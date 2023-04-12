@@ -49,48 +49,6 @@ namespace pruebag1.Controllers
             return proc;
         }
 
-        //Serializar Json en string
-        public static string SerializeToJson(Seat seat)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-            };
-            Console.WriteLine(JsonSerializer.Serialize(seat, options));
-            return JsonSerializer.Serialize(seat, options);
-        }
-
-        //Deserializar Json de string a objeto
-        public static Response DeserializeFromJson(string jsonString)
-        {
-            return JsonSerializer.Deserialize<Response>(jsonString);
-        }
-
-        [HttpPost("peticion")]
-        public async Task<IActionResult> PeticionSapAsync()
-        {
-            var asiento = _seatService.Get("0001");
-            var asientoSer = SerializeToJson(asiento);
-
-            using (var httpClient = new HttpClient())
-            { 
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://sakuragui.ddns.net:81/JournalEntries"))
-                {
-                    httpClient.DefaultRequestHeaders.Add("Company", "DEMO");
-                    request.Content = new StringContent(asientoSer, Encoding.UTF8, "application/json");
-
-                    var response = await httpClient.SendAsync(request);
-                    var content = await response.Content.ReadAsStringAsync();
-                    var contentDes = DeserializeFromJson(content);
-                    return Ok(contentDes);
-                }
-            }
-            
-        }
-           
-     
-
-
         //Crea un proceso con su identificador único
         [HttpPost]
         public async Task<IActionResult> Create()
@@ -251,6 +209,24 @@ namespace pruebag1.Controllers
                 return Ok(new { Success= false, ProcessId= identifier, Error= e.Message + " " + e.InnerException });
             }
         }
+
+        //Serializar Json en string
+        public static string SerializeToJson(Seat seat)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+            };
+            Console.WriteLine(JsonSerializer.Serialize(seat, options));
+            return JsonSerializer.Serialize(seat, options);
+        }
+
+        //Deserializar Json de string a objeto
+        public static Response DeserializeFromJson(string jsonString)
+        {
+            return JsonSerializer.Deserialize<Response>(jsonString);
+        }
+
 
     }
 }
