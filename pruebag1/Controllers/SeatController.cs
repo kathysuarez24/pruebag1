@@ -67,7 +67,7 @@ namespace pruebag1.Controllers
                     ProcessId = null,
                     Status = "pendiente"
                 };
-                _seatService.Create(item);
+                _seatService.Create(reg);
             }
             return Ok();
         }

@@ -32,6 +32,8 @@ namespace pruebag1.Services
             _seats.InsertOne(seat);
             return seat;
         }
+        public void Update(string id, Seat seatIn) =>
+            _seats.ReplaceOne(proc => proc.Reference == id, seatIn);
     }
 
 }

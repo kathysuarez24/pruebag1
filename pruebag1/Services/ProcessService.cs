@@ -29,6 +29,9 @@ namespace pruebag1.Services
             _process.InsertOne(proc);
             return proc;
         }
+
+        public void Update(string id, Process processIn) =>
+            _process.ReplaceOne(proc => proc.Id == id, processIn);
     }
 
 }

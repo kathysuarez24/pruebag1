@@ -1,15 +1,11 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using pruebag1.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace pruebag1
+namespace WorkerService1
 {
     public class Program
     {
@@ -20,14 +16,9 @@ namespace pruebag1
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+                .ConfigureServices((hostContext, services) =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<TimedHostedService>();
+                    services.AddHostedService<Worker>();
                 });
-
     }
 }
