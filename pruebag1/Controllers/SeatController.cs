@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using pruebag1.Models;
-using System.Threading.Tasks;
-using MongoDB.Driver;
 using System.IO;
 using pruebag1.Services;
 using Microsoft.AspNetCore.Http;
@@ -102,6 +98,7 @@ namespace pruebag1.Controllers
                 string lineMemo2 = fila[15];
                 string reference2 = fila[16];
 
+                //Cada asiento debe tener dos entradas
                 List<JournalEntryLines> list = new List<JournalEntryLines>();
 
                 JournalEntryLines journal1 = new JournalEntryLines

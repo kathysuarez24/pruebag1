@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace pruebag1.Models
 {
+	//Estructura de la respuesta de Api Externa
 	public class Response
     {
 		public Data Data { get; set; }

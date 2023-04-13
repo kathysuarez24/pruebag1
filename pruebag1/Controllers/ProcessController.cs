@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using pruebag1.Models;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using pruebag1.Services;
+using pruebag1.Repository;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
-using System.Net.Http.Headers;
 
 namespace pruebag1.Controllers
 {
@@ -20,11 +18,13 @@ namespace pruebag1.Controllers
     {
         private readonly SeatService _seatService;
         private readonly ProcessService _processService;
+        private readonly JsonConvert _repository;
 
-        public ProcessController(SeatService seatService, ProcessService processService)
+        public ProcessController(SeatService seatService, ProcessService processService, JsonConvert repository)
         {
             _seatService = seatService;
             _processService = processService;
+            _repository = repository;
         }
         
         //Obtiene todos los procesos registrados
@@ -49,7 +49,7 @@ namespace pruebag1.Controllers
             return proc;
         }
 
-        //Crea un proceso con su identificador único
+        //Crea un proceso con su identificador único y envía asientos a SAP
         [HttpPost]
         public async Task<IActionResult> Create()
         {
@@ -57,10 +57,8 @@ namespace pruebag1.Controllers
             int items = 0;
             int success = 0;
             int failed = 0;
-            string errorGen = "";
             Response contentDes = new Response();
-
-            Seat regSeatAct = new Seat();
+            Seat regSeatAct;
 
             //Identificador único del proceso
             var identifier = Guid.NewGuid().ToString();
@@ -88,37 +86,32 @@ namespace pruebag1.Controllers
                 foreach (var item in procesar)
                 {
                     var horaInicio = DateTime.Now;
-                    var seatSerialized = SerializeToJson(item);
+                    var seatSerialized = _repository.SerializeToJson(item);
 
-                    //Peticion a SAP
+                    //Peticion a Api Externa
                     using (var httpClient = new HttpClient())
                     {
-                        using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://sakuragui.ddns.net:81/JournalEntries"))
-                        {
-                            httpClient.DefaultRequestHeaders.Add("Company", "DEMO");
-                            request.Content = new StringContent(seatSerialized, Encoding.UTF8, "application/json");
-                            var response = await httpClient.SendAsync(request);
-                            var content = await response.Content.ReadAsStringAsync();
+                        using var request = new HttpRequestMessage(new HttpMethod("POST"), "http://sakuragui.ddns.net:81/JournalEntries");
+                        httpClient.DefaultRequestHeaders.Add("Company", "DEMO");
+                        request.Content = new StringContent(seatSerialized, Encoding.UTF8, "application/json");
+                        var response = await httpClient.SendAsync(request);
+                        var content = await response.Content.ReadAsStringAsync();
 
-                            //Si la petición es exitosa
-                            if (response.IsSuccessStatusCode)
-                            {
-                                respuesta = true;
-                                contentDes = DeserializeFromJson(content);
-                            }
-                            else
-                            {
-                                respuesta = false;
-                                errorGen = content;
-                            }
-                            
+                        //Si la petición es exitosa
+                        if (response.IsSuccessStatusCode)
+                        {
+                            respuesta = true;
+                            contentDes = _repository.DeserializeFromJson(content);
+                        }
+                        else
+                        {
+                            respuesta = false;
                         }
                     }
 
-                    //SI ES EXITOSO
+                    //Si el registro es exitoso
                     if (respuesta == true)
                     { 
-                        //var proc = _processService.Get(item.Reference);
                         int numberSap1 = contentDes.Data.DocEntry;
                         int numberSap2 = contentDes.Data.DocNum;
 
@@ -145,8 +138,6 @@ namespace pruebag1.Controllers
                     }
                     else
                     {
-                        //SI NO ES EXITOSO
-
                         //Actualizo estado de asiento
                         regSeatAct = new Seat
                         {
@@ -166,7 +157,6 @@ namespace pruebag1.Controllers
                             Status = "failed"
                         };
                         _seatService.Update(item.Reference, regSeatAct);
-
                         failed++;
                     }
                 }
@@ -186,11 +176,11 @@ namespace pruebag1.Controllers
                 };
                 _processService.Update(identifier, regAct);
 
+                //Respuesta solicitada solo para este metodo
                 return Ok(new { Success= true, ProcessId= identifier, Error= (string)null});
             }
             catch (Exception e)
             {
-                //OPCIONAL
                 //Actualizo estado y fecha de proceso
                 Process regAct = new Process
                 {
@@ -205,28 +195,9 @@ namespace pruebag1.Controllers
                     Status = "failed",
                 };
                 _processService.Update(identifier, regAct);
-
                 return Ok(new { Success= false, ProcessId= identifier, Error= e.Message + " " + e.InnerException });
             }
         }
-
-        //Serializar Json en string
-        public static string SerializeToJson(Seat seat)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-            };
-            Console.WriteLine(JsonSerializer.Serialize(seat, options));
-            return JsonSerializer.Serialize(seat, options);
-        }
-
-        //Deserializar Json de string a objeto
-        public static Response DeserializeFromJson(string jsonString)
-        {
-            return JsonSerializer.Deserialize<Response>(jsonString);
-        }
-
 
     }
 }

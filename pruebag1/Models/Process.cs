@@ -11,7 +11,7 @@ namespace pruebag1.Models
 	{
 		[BsonId]
 		[BsonRepresentation(BsonType.ObjectId)]
-		public string _id { get; set; }
+		public string _id { get; set; } //id que asigna MongoDB
 		public string Id { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime? EndDate { get; set; }

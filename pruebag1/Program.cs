@@ -23,10 +23,6 @@ namespace pruebag1
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<TimedHostedService>();
                 });
 
     }

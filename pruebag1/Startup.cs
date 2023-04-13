@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using pruebag1.Models;
 using Microsoft.Extensions.Options;
 using pruebag1.Services;
+using pruebag1.Repository;
 
 namespace pruebag1
 {
@@ -40,6 +41,8 @@ namespace pruebag1
 
             services.AddSingleton<SeatService>();
             services.AddSingleton<ProcessService>();
+            services.AddSingleton<JsonConvert>();
+
         }
 
         private void AddSwagger(IServiceCollection services)
